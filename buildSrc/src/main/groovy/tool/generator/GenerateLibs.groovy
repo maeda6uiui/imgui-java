@@ -174,6 +174,7 @@ class GenerateLibs extends DefaultTask {
     BuildTarget createLinuxTarget(Architecture arch) {
         def linuxTarget = BuildTarget.newDefaultTarget(Os.Linux, Architecture.Bitness._64, arch)
         linuxTarget.libName = "libimgui-java64.so"
+        linuxTarget.cppFlags += " -std=c++14"
 
         if (compilerSuffix != null) {
             linuxTarget.compilerSuffix = compilerSuffix
