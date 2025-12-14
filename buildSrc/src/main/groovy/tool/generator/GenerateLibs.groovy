@@ -36,6 +36,8 @@ class GenerateLibs extends DefaultTask {
     private final boolean forMac = buildEnvs?.contains('macos')
     private final boolean forMacArm64 = buildEnvs?.contains('macosarm64')
 
+    private final String compilerSuffix = System.getProperty('compilerSuffix')
+
     private final boolean isLocal = System.properties.containsKey('local')
     private final boolean withFreeType = Boolean.valueOf(System.properties.getProperty('freetype', 'false'))
 
@@ -57,7 +59,7 @@ class GenerateLibs extends DefaultTask {
         if (!buildEnvs) {
             throw new IllegalStateException('No build targets')
         }
-        
+
         new File(jniDir).deleteDir()
         new File(tmpDir).deleteDir()
         new File("$rootDir/$libsDirName").deleteDir()
@@ -172,6 +174,11 @@ class GenerateLibs extends DefaultTask {
     BuildTarget createLinuxTarget(Architecture arch) {
         def linuxTarget = BuildTarget.newDefaultTarget(Os.Linux, Architecture.Bitness._64, arch)
         linuxTarget.libName = "libimgui-java64.so"
+
+        if (compilerSuffix != null) {
+            linuxTarget.compilerSuffix = compilerSuffix
+        }
+
         addFreeTypeIfEnabled(linuxTarget)
         return linuxTarget
     }
