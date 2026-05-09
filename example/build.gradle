@@ -4,12 +4,12 @@ plugins {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
 application {
-    mainClass = 'Main'
+    mainClass = (findProperty('mainClass') ?: 'Main') as String
     try {
         if (libPath) {
             applicationDefaultJvmArgs = ["-Dimgui.library.path=$libPath"]
@@ -23,7 +23,7 @@ dependencies {
     implementation project(':imgui-app')
 }
 
-run {
+tasks.withType(JavaExec).configureEach {
     if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
         jvmArgs += ['-XstartOnFirstThread', '-Djava.awt.headless=true']
     }
