@@ -124,8 +124,8 @@ class GenerateLibs extends DefaultTask {
             buildTargets += createLinuxTarget(Architecture.x86)
         }
 
-        if(forLinuxArm64){
-            buildTargets+=createLinuxTarget(Architecture.ARM)
+        if (forLinuxArm64) {
+            buildTargets += createLinuxTarget(Architecture.ARM)
         }
 
         if (forMac) {
