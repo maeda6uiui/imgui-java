@@ -31,6 +31,7 @@ class GenerateLibs extends DefaultTask {
 
     private final String[] buildEnvs = System.getProperty('envs')?.split(',')
     private final boolean forWindows = buildEnvs?.contains('windows')
+    private final boolean forWindowsArm64 = buildEnvs?.contains('windowsarm64')
     private final boolean forLinux = buildEnvs?.contains('linux')
     private final boolean forLinuxArm64 = buildEnvs?.contains('linuxarm64')
     private final boolean forMac = buildEnvs?.contains('macos')
@@ -114,10 +115,11 @@ class GenerateLibs extends DefaultTask {
         BuildTarget[] buildTargets = []
 
         if (forWindows) {
-            def win64 = BuildTarget.newDefaultTarget(Os.Windows, Architecture.Bitness._64)
-            requireCpp17(win64)
-            addFreeTypeIfEnabled(win64)
-            buildTargets += win64
+            buildTargets += createWindowsTarget(Architecture.x86)
+        }
+
+        if (forWindowsArm64) {
+            buildTargets += createWindowsTarget(Architecture.ARM)
         }
 
         if (forLinux) {
@@ -145,6 +147,8 @@ class GenerateLibs extends DefaultTask {
 
         if (forWindows)
             BuildExecutor.executeAnt(jniDir + '/build-windows64.xml', commonParams)
+        if (forWindowsArm64)
+            BuildExecutor.executeAnt(jniDir + '/build-windowsarm64.xml', commonParams)
         if (forLinux)
             BuildExecutor.executeAnt(jniDir + '/build-linux64.xml', commonParams)
         if (forLinuxArm64)
@@ -158,6 +162,8 @@ class GenerateLibs extends DefaultTask {
 
         if (forWindows)
             checkLibExist("windows64/imgui-java64.dll")
+        if (forWindowsArm64)
+            checkLibExist("windowsarm64/imgui-java64.dll")
         if (forLinux)
             checkLibExist("linux64/libimgui-java64.so")
         if (forLinuxArm64)
@@ -174,6 +180,14 @@ class GenerateLibs extends DefaultTask {
             logger.error("Failed to build $libName!")
             throw new IllegalStateException("$path does not exist")
         }
+    }
+
+    BuildTarget createWindowsTarget(Architecture arch) {
+        def windowsTarget = BuildTarget.newDefaultTarget(Os.Windows, Architecture.Bitness._64, arch)
+        windowsTarget.libName = "imgui-java64.dll"
+        requireCpp17(windowsTarget)
+        addFreeTypeIfEnabled(windowsTarget)
+        return windowsTarget
     }
 
     BuildTarget createLinuxTarget(Architecture arch) {
