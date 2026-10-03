@@ -186,6 +186,10 @@ class GenerateLibs extends DefaultTask {
         def windowsTarget = BuildTarget.newDefaultTarget(Os.Windows, Architecture.Bitness._64, arch)
         windowsTarget.libName = "imgui-java64.dll"
         requireCpp17(windowsTarget)
+        if (arch == Architecture.ARM) {
+            // llvm-mingw uses libc++, which doesn't transitively include <exception> (imgui-node-editor's crude_json.cpp needs std::terminate)
+            windowsTarget.cppFlags += ' -include exception'
+        }
         addFreeTypeIfEnabled(windowsTarget)
         return windowsTarget
     }
